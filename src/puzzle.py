@@ -14,7 +14,6 @@ class Puzzle:
             p_reader = csv.reader(pfile)
             for p_row in p_reader:
                 puzzle.append(p_row)
-        
         return puzzle
     
     def parse_words(self, list_name):
@@ -22,27 +21,28 @@ class Puzzle:
         with open(list_name, 'r') as cfile:
             c_reader = csv.reader(cfile)
             for c_row in c_reader:
-                words.append(str(c_row[0]).replace(' ', ''))
-        
+                words.append(str(c_row[0]).replace(' ', '')) 
         return words
 
     def find_word(self):
         for word in self.words:
-            #self.find_horizontal(word)
-            #self.find_vertical(word)
-            self.find_diagonal(word)
+            if self.find_horizontal(word):
+                continue
+            if self.find_vertical(word):
+                continue
+            if self.find_diagonal(word):
+                continue
 
     def find_horizontal(self, word):
         for ri, row in enumerate(self.puzzle):
             if word in str(row):
                 for i in range(0, len(word)):
-                    self.solved.append((ri, str(row).find(word)- 2 + i))
+                    self.solved.append((ri, str(row).find(word) - 2 + i))
                 return True
             row_r = str(row)[::-1]
             if word in row_r:
-                print(word)
                 for i in range(0, len(word)):
-                    self.solved.append((ri, len(row_r) - str(row_r).find(word) -3 - i))
+                    self.solved.append((ri, len(row_r) - str(row_r).find(word) - 3 - i))
                 return True
         return False
 
@@ -59,25 +59,34 @@ class Puzzle:
                 return True
             if word in str(temp_r):
                 for i in range(0, len(word)):
-                    self.solved.append((len(temp_r) - str(temp_r).find(word) -1 - i, char))
+                    self.solved.append((len(temp_r) - str(temp_r).find(word) - 1 - i, char))
                 return True
         return False
 
     def find_diagonal(self, word):
         for a in range(0, len(self.puzzle[0][0])):
-            temp = []
+            temp = [[] for i in range(8)]
+            ranges = [[] for i in range(8)]
             i = 0
             while ((a - i) >= 0) and (i < len(self.puzzle)):
-                temp.append(self.puzzle[i][0][a-i])
+                coords = [[i, a-i],[29-i, a-i], [29-i, 29-(a-i)], [i, 29-(a-i)]]
+                for cx, c in enumerate(coords):
+                    temp[cx].append(self.puzzle[c[0]][0][c[1]])
+                    ranges[cx].append((c[0], c[1]))
+                    ranges[cx+4].append((c[1], c[0]))
                 i+=1
-            temp = ''.join(temp)
-            temp_r = temp[::-1]
-            print(temp)
-            
+
+            for ti in range(4):
+                temp[ti] = ''.join(temp[ti])
+                temp[ti+4] = temp[ti][::-1]
+
+            for tx, t in enumerate(temp):
+                if word in str(t):
+                    for i in range(0, len(word)):
+                        self.solved.append(ranges[tx][str(t).find(word) + i])
+                    return True
         return False
             
-
-
     def output_cli(self):
         for ri, row in enumerate(self.puzzle):
             for chi, ch in enumerate(row[0]):
@@ -86,8 +95,6 @@ class Puzzle:
                 else:
                     print(colored(f"{ch}", "blue"),end=" ")
             print()
-
-        
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
