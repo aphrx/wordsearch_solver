@@ -22,7 +22,16 @@ class Puzzle:
             c_reader = csv.reader(cfile)
             for c_row in c_reader:
                 words.append(str(c_row[0]).replace(' ', '')) 
-        return words
+        return words 
+
+    def output_cli(self):
+        for ri, row in enumerate(self.puzzle):
+            for chi, ch in enumerate(row[0]):
+                if (ri, chi) in self.solved:
+                    print(colored(f"{ch}", "red"),end=" ")
+                else:
+                    print(colored(f"{ch}", "blue"),end=" ")
+            print()
 
     def find_word(self):
         for word in self.words:
@@ -87,14 +96,7 @@ class Puzzle:
                     return True
         return False
             
-    def output_cli(self):
-        for ri, row in enumerate(self.puzzle):
-            for chi, ch in enumerate(row[0]):
-                if (ri, chi) in self.solved:
-                    print(colored(f"{ch}", "red"),end=" ")
-                else:
-                    print(colored(f"{ch}", "blue"),end=" ")
-            print()
+    
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -103,7 +105,9 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     p = Puzzle(args)
-    
+    print("\nPROBLEM:")
+    p.output_cli()
+    print("\nSOLUTION:")
     p.find_word()
     p.output_cli()
 
