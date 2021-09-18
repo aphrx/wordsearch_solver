@@ -82,7 +82,7 @@ class Puzzle:
                 for cx, c in enumerate(coords):
                     temp[cx].append(self.puzzle[c[0]][0][c[1]])
                     ranges[cx].append((c[0], c[1]))
-                    ranges[cx+4].append((c[1], c[0]))
+                    ranges[cx+4].insert(0, (c[0], c[1]))
                 i+=1
 
             for ti in range(4):
