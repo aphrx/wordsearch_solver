@@ -4,6 +4,7 @@ from termcolor import colored
 
 class Puzzle:
     def __init__(self, args):
+        self.size = 0  # length/height of puzzle
         self.puzzle = self.parse_puzzle(args.puzzle)
         self.words = self.parse_words(args.words)
         self.solved = []
@@ -14,15 +15,16 @@ class Puzzle:
             p_reader = csv.reader(pfile)
             for p_row in p_reader:
                 puzzle.append(p_row)
+            self.size = len(p_row[0]) - 1  # update length/height of puzzle
         return puzzle
-    
+
     def parse_words(self, list_name):
         words = []
         with open(list_name, 'r') as cfile:
             c_reader = csv.reader(cfile)
             for c_row in c_reader:
-                words.append(str(c_row[0]).replace(' ', '')) 
-        return words 
+                words.append(str(c_row[0]).replace(' ', '').upper())  # incase words are not all caps
+        return words
 
     def output_cli(self):
         for ri, row in enumerate(self.puzzle):
@@ -77,12 +79,16 @@ class Puzzle:
             temp = [[] for i in range(8)]
             ranges = [[] for i in range(8)]
             i = 0
+            j = self.size  # just for readability
             while ((a - i) >= 0) and (i < len(self.puzzle)):
-                coords = [[i, a-i],[29-i, a-i], [29-i, 29-(a-i)], [i, 29-(a-i)]]
+                # earlier 'coords' only works for 30x30 puzzle
+                # Adapted for all puzzle size 
+                coords = [[i, a - i], [j - i, a - i], [j - i, j - (a - i)], [i, j - (a - i)]]
                 for cx, c in enumerate(coords):
                     temp[cx].append(self.puzzle[c[0]][0][c[1]])
                     ranges[cx].append((c[0], c[1]))
-                    ranges[cx+4].append((c[1], c[0]))
+                    # fix reconstruction of path for upwards diagonal words @speckij
+                    ranges[cx+4].insert(0, (c[0], c[1]))
                 i+=1
 
             for ti in range(4):
@@ -95,8 +101,8 @@ class Puzzle:
                         self.solved.append(ranges[tx][str(t).find(word) + i])
                     return True
         return False
-            
-    
+
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
